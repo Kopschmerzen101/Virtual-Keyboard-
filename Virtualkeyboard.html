@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Keyboard Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 600px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+        }
+
+        .chat-area {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            height: 150px;
+            overflow-y: auto;
+            background-color: white;
+            margin-bottom: 10px;
+        }
+
+        .chat-message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+            background-color: #e9ecef;
+        }
+
+        .keyboard {
+            display: inline-block;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .key {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin: 5px;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            line-height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.3s;
+        }
+
+        .key:hover {
+            background-color: #0056b3;
+        }
+
+        .key.wide {
+            width: 90px;
+        }
+
+        .key.backspace {
+            width: 80px;
+        }
+
+        .key.enter {
+            width: 80px;
+        }
+
+        .key.clear {
+            width: 80px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: center;
+        }
+
+        .message-count {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        // Create container
+        const container = document.createElement('div');
+        container.className = 'container';
+
+        // Create chat area
+        const chatArea = document.createElement('div');
+        chatArea.className = 'chat-area';
+        container.appendChild(chatArea);
+
+        // Create message count display
+        const messageCountDisplay = document.createElement('div');
+        messageCountDisplay.className = 'message-count';
+        container.appendChild(messageCountDisplay);
+
+        // Create keyboard layout
+        const keyboardLayout = [
+            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+            ['Z', 'X', 'C', 'V', 'B', 'N', 'M'],
+            ['Space', 'Enter', 'Backspace', 'Clear']
+        ];
+
+        const keyboardContainer = document.createElement('div');
+        keyboardContainer.className = 'keyboard';
+
+        // Create keyboard keys
+        keyboardLayout.forEach((row) => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'row';
+            row.forEach(key => {
+                const keyDiv = document.createElement('div');
+                keyDiv.className = 'key' + (key === 'Space' ? ' wide' : key === 'Backspace' ? ' backspace' : key === 'Enter' ? ' enter' : key === 'Clear' ? ' clear' : '');
+                keyDiv.textContent = key === 'Space' ? '⎵' : key === 'Backspace' ? '←' : key === 'Enter' ? '↵' : key === 'Clear' ? 'C' : key;
+                keyDiv.addEventListener('click', () => handleKeyClick (key));
+                rowDiv.appendChild(keyDiv);
+            });
+            keyboardContainer.appendChild(rowDiv);
+        });
+
+        container.appendChild(keyboardContainer);
+        document.body.appendChild(container);
+
+        let currentInput = '';
+        const messages = []; // Array to store messages
+
+        function handleKeyClick(key) {
+            if (key === 'Space') {
+                currentInput += ' '; // Add a space character
+            } else if (key === 'Backspace') {
+                currentInput = currentInput.slice(0, -1); // Remove the last character
+            } else if (key === 'Enter') {
+                if (currentInput.trim() !== '') { // Check for non-empty input
+                    messages.push(currentInput); // Add the current input to the messages array
+                    currentInput = ''; // Clear the current input after submission
+                }
+            } else if (key === 'Clear') {
+                currentInput = ''; // Clear the current input
+            } else {
+                if (currentInput.length < 100) { // Character limit of 100
+                    currentInput += key; // Add the key character to the input
+                }
+            }
+            updateChatArea();
+        }
+
+        function updateChatArea() {
+            chatArea.innerHTML = ''; // Clear the chat area
+            messages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message';
+                messageDiv.textContent = message; // Display each message
+                messageDiv.style.backgroundColor = message.length > 50 ? '#ffcccc' : '#e9ecef'; // Change color based on length
+                chatArea.appendChild(messageDiv);
+            });
+            if (currentInput) { // Display the current input as a message
+                const currentInputDiv = document.createElement('div');
+                currentInputDiv.className = 'chat-message';
+                currentInputDiv.textContent = currentInput;
+                chatArea.appendChild(currentInputDiv);
+            }
+            chatArea.scrollTop = chatArea.scrollHeight; // Scroll to the bottom of the chat area
+            messageCountDisplay.textContent = `Messages sent: ${messages.length}`; // Update message count
+        }
+    </script>
+</body>
+</html>
